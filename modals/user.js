@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+    required: [true, "Password is required"]
   },
   role: {
     type: String,
@@ -29,5 +29,12 @@ const UserSchema = new mongoose.Schema({
     trim: true,
   },
 });
+
+//Exclude password from object
+UserSchema.methods.toJSON = function () {
+  let userObject = this.toObject();
+  delete userObject.password;
+  return userObject;
+};
 
 module.exports = mongoose.model("User", UserSchema);
