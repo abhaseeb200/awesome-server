@@ -2,28 +2,37 @@ const User = require("../modals/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// Sign-up controller to create a new user
+// Controller to create a new account
+// Remember: Admin has only one account and user has multiple
 const signUp = async (req, res) => {
-  let { password } = req.body;
-  if (password.length < 6) {
+  if (req.body.password.length < 6) {
     return res.status(400).json({
       message: "Password can not be less than 6 char.",
       successful: false,
     });
   }
+
   try {
-    password = await bcrypt.hash(req.body.password, 10);
+    req.body.password = await bcrypt.hash(req.body.password, 10);
+    req.body.role = "user"; //should be 'admin' if don't have any admin account.
     const user = await User.create(req.body);
-    res.json({ data: user, successful: true });
+
+    const token = await jwt.sign(
+      { role: req.body.role },
+      process.env.JWT_SECRET
+    );
+
+    res.json({ data: user, token: token, successful: true });
   } catch (error) {
-    console.log({ error });
     res.status(400).json({ error, successful: false });
   }
 };
 
-// Sign-In controller to login the user
+// Controller to login the user and admin
 const signIn = async (req, res) => {
   const { email, password } = req.body;
+
+  // Protect the admin account from normal users
   const isAdminRoute = req.path.includes("/admin");
 
   try {
@@ -53,11 +62,20 @@ const signIn = async (req, res) => {
       { role: findUser.role },
       process.env.JWT_SECRET
     );
-    res.status(200).json({ token: token, successful: true });
+
+    res.status(200).json({ token: token, data: findUser, successful: true });
   } catch (error) {
-    console.log({ error });
-    res.status(400).json({ error });
+    res.status(400).json(error);
   }
 };
 
-module.exports = { signUp, signIn };
+const getUsers = async (req, res) => {
+  try {
+    const response = await User.find().where({ role: "user" });
+    res.status(200).json({ data: response, successful: true });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
+
+module.exports = { signUp, signIn, getUsers };
