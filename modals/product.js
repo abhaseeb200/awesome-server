@@ -36,15 +36,41 @@ const ProductSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Discount Percentage is required"],
   },
-  variants: {
-    type: Object,
-    colors: { type: Array, required: true },
-    sizes: {
-      type: Object,
-      size: { type: String, required: true },
-      price: { type: Number, required: true },
-    },
+  price: {
+    type: Number,
+    required: [true, "Price is required"],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  attributes: {
+    colors: [
+      {
+        color: { type: String, required: true },
+        image: { type: String, required: true },
+      },
+    ],
+    sizes: [
+      {
+        size: { type: String, required: true },
+        price: { type: Number, required: true },
+      },
+    ],
   },
 });
+
+// Update the updatedAt field automatically on save
+ProductSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+// Perform a full-text search across multiple fields
+ProductSchema.index({ title: 'text', brand: 'text' });
 
 module.exports = mongoose.model("Product", ProductSchema);
