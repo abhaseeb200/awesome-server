@@ -1,14 +1,17 @@
 require("dotenv").config();
 const express = require("express");
 const connectDataBase = require("./config/db");
+
 const userRoutes = require("./routes/user");
 const productRoutes = require("./routes/product");
 const categoryRoutes = require("./routes/category");
+const uploadRoutes = require("./routes/upload");
+const orderRoutes = require("./routes/order");
 
 const app = express();
 const PORT = process.env.PORT;
 
-// Welcome notes!
+// Welcome for testing purpose
 app.get("/", (req, res) => {
   res.send("Welcome to Awesome-Server");
 });
@@ -16,10 +19,15 @@ app.get("/", (req, res) => {
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-//define routes
+// Define routes
 app.use("/", userRoutes);
 app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/uploads", uploadRoutes);
+app.use("/orders", orderRoutes);
+
+// Serve the "uploads" folder
+app.use('/uploads', express.static('uploads'));
 
 app.listen(PORT, (error) => {
   if (!error) {
