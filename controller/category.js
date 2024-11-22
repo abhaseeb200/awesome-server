@@ -1,12 +1,12 @@
 const Category = require("../modals/category");
+const { getPaginationParams } = require("../utils/pagination");
 
 const getCategories = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
-    const skip = (page - 1) * limit;
-    const total = await Category.countDocuments();
+  try {;
+    const { page, limit, skip, total } = await getPaginationParams(req, Category);
+
     const response = await Category.find({}).skip(skip).limit(limit);
+
     res.json({
       data: response,
       skip: skip,

@@ -1,17 +1,16 @@
 const mongoose = require("mongoose");
 const Product = require("../modals/product");
+const { getPaginationParams } = require("../utils/pagination");
 
 const getProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-    const total = await Product.countDocuments();
-    const query = req.query.category ? { category: req.query.category } : {};
-    const response = await Product.find(query)
+    const { page, limit, skip, total } = await getPaginationParams(req, Product);
+
+    const response = await Product.find({})
       .populate("category")
       .skip(skip)
       .limit(limit);
+
     res.status(200).json({
       data: response,
       page: page,
@@ -27,15 +26,13 @@ const getProducts = async (req, res) => {
 
 const getSearchProduct = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const { page, limit, skip, total } = await getPaginationParams(req, Product);
+
     // Regular expression for case-insensitive matching
     const regex = new RegExp(req.query.q, "i");
-    const total = await Product.countDocuments();
 
     // Search across multiple fields using $text
-    const response = await Product.find({ $text: { $search: req.query.q } })
+    const response = await Product.find({ $text: { $search: regex } })
       .populate("category")
       .skip(skip)
       .limit(limit);
@@ -43,6 +40,7 @@ const getSearchProduct = async (req, res) => {
     if (!response) {
       return res.status(404).json({ message: "Product not found" });
     }
+    
     res.status(200).json({
       data: response,
       page: page,
