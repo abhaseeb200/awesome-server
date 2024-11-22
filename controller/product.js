@@ -6,7 +6,7 @@ const getProducts = async (req, res) => {
   try {
     const { page, limit, skip, total } = await getPaginationParams(req, Product);
 
-    const response = await Product.find({})
+    const response = await Product.find({ category:req.params.category })
       .populate("category")
       .skip(skip)
       .limit(limit);
@@ -131,6 +131,31 @@ const filterProducts = async (req, res) => {
   }
 };
 
+const getProductsByCategory = async (req, res) => {
+  try {
+    const { page, limit, skip, total } = await getPaginationParams(req, Product);
+
+    const response = await Product.find({category: req.params.id})
+      .populate("category")
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      data: response,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      // skip: skip,
+      // limit: limit,
+      count: response.length,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error });
+    console.log(error);
+    
+  }
+};
+
+
 module.exports = {
   getProducts,
   getProductDetails,
@@ -139,4 +164,5 @@ module.exports = {
   deleteProducts,
   getSearchProduct,
   filterProducts,
+  getProductsByCategory,
 };
