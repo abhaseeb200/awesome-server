@@ -1,5 +1,6 @@
 const Category = require("../modals/category");
 const { getPaginationParams } = require("../utils/pagination");
+const { validateObjectId } = require("../utils/validateObjectId");
 
 const getCategories = async (req, res) => {
   try {;
@@ -25,11 +26,7 @@ const getCategoryDetails = async (req, res) => {
     const { id } = req.params;
 
     // CHECK FOR VALID OBJECT ID
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(404)
-        .json({ message: "Invalid Category ID", successful: false });
-    }
+    validateObjectId(req.params.id, res)
 
     const response = await Category.findOne({ _id: id });
     if (id) {

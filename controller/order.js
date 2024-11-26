@@ -1,5 +1,5 @@
 const Order = require("../modals/order");
-const mongoose = require("mongoose");
+const { validateObjectId } = require("../utils/validateObjectId");
 
 /*
 SECURITY ALERT:
@@ -63,11 +63,7 @@ const getCustomerOrders = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   try {
     // CHECK FOR VALID OBJECT ID
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res
-        .status(404)
-        .json({ message: "Invalid order ID", successful: false });
-    }
+    validateObjectId(req.params.id, res)
 
     const findOrder = await Order.findById({ _id: req.params.id });
 
@@ -113,11 +109,7 @@ const updateOrder = async (req, res) => {
 const deleteOrder = async (req, res) => {
   try {
     // CHECK FOR VALID OBJECT ID
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res
-        .status(404)
-        .json({ message: "Invalid order ID", successful: false });
-    }
+    validateObjectId(req.params.id, res)
 
     const response = await Order.findByIdAndDelete(req.params.id);
     

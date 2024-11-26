@@ -1,12 +1,12 @@
-const mongoose = require("mongoose");
 const Product = require("../modals/product");
 const { getPaginationParams } = require("../utils/pagination");
+const { validateObjectId } = require("../utils/validateObjectId");
 
 const getProducts = async (req, res) => {
   try {
     const { page, limit, skip, total } = await getPaginationParams(req, Product);
 
-    const response = await Product.find({ category:req.params.category })
+    const response = await Product.find({})
       .populate("category")
       .skip(skip)
       .limit(limit);
@@ -57,11 +57,7 @@ const getSearchProduct = async (req, res) => {
 const getProductDetails = async (req, res) => {
   try {
     // CHECK FOR VALID OBJECT ID
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res
-        .status(404)
-        .json({ message: "Invalid product ID", successful: false });
-    }
+    validateObjectId(req.params.id, res)
 
     const findProduct = await Product.findById({ _id: req.params.id });
 
@@ -71,6 +67,8 @@ const getProductDetails = async (req, res) => {
 
     return res.status(200).json({ data: findProduct, successful: true });
   } catch (error) {
+    console.log(error);
+    
     res.status(400).json({ message: error });
   }
 };
@@ -103,11 +101,7 @@ const updateProducts = async (req, res) => {
 const deleteProducts = async (req, res) => {
   try {
     // CHECK FOR VALID OBJECT ID
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res
-        .status(404)
-        .json({ message: "Invalid product ID", successful: false });
-    }
+    validateObjectId(req.params.id, res)
 
     const response = await Product.findByIdAndDelete(req.params.id);
     if (!response) {
