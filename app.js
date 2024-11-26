@@ -7,6 +7,7 @@ const productRoutes = require("./routes/product");
 const categoryRoutes = require("./routes/category");
 const uploadRoutes = require("./routes/upload");
 const orderRoutes = require("./routes/order");
+const wishlistRoutes = require("./routes/wishlist");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -25,6 +26,7 @@ app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/uploads", uploadRoutes);
 app.use("/orders", orderRoutes);
+app.use("/wishlist", wishlistRoutes);
 
 // Serve the "uploads" folder
 app.use('/uploads', express.static('uploads'));
