@@ -2,12 +2,17 @@ const Product = require("../modals/product");
 const { getPaginationParams } = require("../utils/pagination");
 const { validateObjectId } = require("../utils/validateObjectId");
 
+//There is no need of Attributes or Variants
 const getProducts = async (req, res) => {
   try {
-    const { page, limit, skip, total } = await getPaginationParams(req, Product);
+    const { page, limit, skip, total } = await getPaginationParams(
+      req,
+      Product
+    );
 
     const response = await Product.find({})
-      .populate("category")
+      .populate("category") //there only need of their name and id
+      .populate("brand") //there only need of their name and id
       .skip(skip)
       .limit(limit);
 
@@ -26,7 +31,10 @@ const getProducts = async (req, res) => {
 
 const getSearchProduct = async (req, res) => {
   try {
-    const { page, limit, skip, total } = await getPaginationParams(req, Product);
+    const { page, limit, skip, total } = await getPaginationParams(
+      req,
+      Product
+    );
 
     // Regular expression for case-insensitive matching
     const regex = new RegExp(req.query.q, "i");
@@ -40,7 +48,7 @@ const getSearchProduct = async (req, res) => {
     if (!response) {
       return res.status(404).json({ message: "Product not found" });
     }
-    
+
     res.status(200).json({
       data: response,
       page: page,
@@ -57,7 +65,7 @@ const getSearchProduct = async (req, res) => {
 const getProductDetails = async (req, res) => {
   try {
     // CHECK FOR VALID OBJECT ID
-    validateObjectId(req.params.id, res)
+    validateObjectId(req.params.id, res);
 
     const findProduct = await Product.findById({ _id: req.params.id });
 
@@ -68,7 +76,7 @@ const getProductDetails = async (req, res) => {
     return res.status(200).json({ data: findProduct, successful: true });
   } catch (error) {
     console.log(error);
-    
+
     res.status(400).json({ message: error });
   }
 };
@@ -101,7 +109,7 @@ const updateProducts = async (req, res) => {
 const deleteProducts = async (req, res) => {
   try {
     // CHECK FOR VALID OBJECT ID
-    validateObjectId(req.params.id, res)
+    validateObjectId(req.params.id, res);
 
     const response = await Product.findByIdAndDelete(req.params.id);
     if (!response) {
@@ -127,10 +135,17 @@ const filterProducts = async (req, res) => {
 
 const getProductsByCategory = async (req, res) => {
   try {
-    const { page, limit, skip, total } = await getPaginationParams(req, Product);
+    // CHECK FOR VALID OBJECT ID
+    validateObjectId(req.params.id, res);
 
-    const response = await Product.find({category: req.params.id})
-      .populate("category")
+    const { page, limit, skip, total } = await getPaginationParams(
+      req,
+      Product
+    );
+
+    const response = await Product.find({ category: req.params.id })
+      .populate("category") //there only need of their name and id
+      .populate("brand") //there only need of their name and id
       .skip(skip)
       .limit(limit);
 
@@ -145,10 +160,36 @@ const getProductsByCategory = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error });
     console.log(error);
-    
   }
 };
 
+const getProductsByBrand = async (req, res) => {
+  try {
+    // CHECK FOR VALID OBJECT ID
+    validateObjectId(req.params.id, res);
+
+    const { page, limit, skip, total } = await getPaginationParams(
+      req,
+      Product
+    );
+
+    const response = await Product.find({ brand: req.params.id })
+      .populate("category") //there only need of their name and id
+      .populate("brand") //there only need of their name and id
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      data: response,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      count: response.length,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error });
+    console.log(error);
+  }
+};
 
 module.exports = {
   getProducts,
@@ -159,4 +200,5 @@ module.exports = {
   getSearchProduct,
   filterProducts,
   getProductsByCategory,
+  getProductsByBrand,
 };
