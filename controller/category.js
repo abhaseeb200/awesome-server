@@ -3,16 +3,30 @@ const { getPaginationParams } = require("../utils/pagination");
 const { validateObjectId } = require("../utils/validateObjectId");
 
 const getCategories = async (req, res) => {
-  try {;
-    const { page, limit, skip, total } = await getPaginationParams(req, Category);
+  try {
+    const { page, limit, skip } = await getPaginationParams(req);
+    // SEARCH QUERY
+    const searchQuery = req.query.q;
 
-    const response = await Category.find({}).skip(skip).limit(limit);
+    // SORTING QUERY DEFAULTS
+    const sortBy = req.query.sortBy || "createdAt";
+    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+
+    // SORTING QUERY OPTIONS
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder;
+ 
+    // $options USED FOR CASE-INSENSITIVE
+    // $regex USED FOR NON-EXACT MATCH
+    const filter = searchQuery ? { title: { $regex: searchQuery, $options: "i" } } : {} 
+    const response = await Category.find(filter).sort(sortOptions).skip(skip).limit(limit);
+    const total = await Category.countDocuments(filter);
 
     res.json({
       data: response,
       skip: skip,
       page: page,
-      limit: response.length,
+      limit: limit,
       total: total,
       successful: true,
     });
@@ -26,7 +40,7 @@ const getCategoryDetails = async (req, res) => {
     const { id } = req.params;
 
     // CHECK FOR VALID OBJECT ID
-    validateObjectId(req.params.id, res)
+    validateObjectId(req.params.id, res);
 
     const response = await Category.findOne({ _id: id });
     if (id) {

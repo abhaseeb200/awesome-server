@@ -1,9 +1,8 @@
-const getPaginationParams = async (req, model) => {
+const getPaginationParams = async (req) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const total = await model.countDocuments();
-    return { page, limit, skip, total };
+    return { page, limit, skip };
   };
   
   module.exports = { getPaginationParams };
