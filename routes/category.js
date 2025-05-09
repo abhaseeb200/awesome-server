@@ -11,8 +11,9 @@ const router = express.Router();
 
 router.route("/").get(getCategories);
 router.route("/:id").get(getCategoryDetails);
+
 router.route("/add").post(auth, isAdmin, addCategory);
-router.route("/update/:id").put(updateCategory);
-router.route("/delete/:id").delete(deleteCategory);
+router.route("/update/:id").put(auth, isAdmin, updateCategory);
+router.route("/delete/:id").delete(auth, isAdmin, deleteCategory);
 
 module.exports = router;
