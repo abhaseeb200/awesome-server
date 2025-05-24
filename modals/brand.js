@@ -17,6 +17,10 @@ const BrandSchema = new mongoose.Schema({
     type: String,
     required: [true, "Thumbnail is required"],
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Brand", BrandSchema);
