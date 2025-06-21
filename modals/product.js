@@ -30,12 +30,11 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: [true, "Thumbnail is required"],
   },
-  images: {
+  gallery: {
     type: Array,
   },
   discountPercentage: {
     type: Number,
-    required: [true, "Discount Percentage is required"],
   },
   price: {
     type: Number,
